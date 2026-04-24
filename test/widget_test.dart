@@ -1,30 +1,31 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // Добавь этот импорт для Icons
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:focus_quotes/main.dart';
+import 'package:focus_quotes/data/quotes_data.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  // Тест 1 (уже есть у тебя)
+  testWidgets('Проверка отображения заголовка и первой цитаты', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const FocusQuotesApp());
+    expect(find.text('Focus Quotes'), findsOneWidget);
+    expect(find.text(quotes[0].text), findsOneWidget);
+    expect(find.text('1 / ${quotes.length}'), findsOneWidget);
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  // Тест 2 (НОВЫЙ: переключение цитат)
+  testWidgets('Проверка переключения на следующую цитату', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const FocusQuotesApp());
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Находим кнопку "вперед" и нажимаем
+    await tester.tap(find.byIcon(Icons.arrow_forward_ios));
+    await tester.pump(); // Ждем перерисовки кадра
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Теперь должна быть вторая цитата
+    expect(find.text(quotes[1].text), findsOneWidget);
+    expect(find.text('2 / ${quotes.length}'), findsOneWidget);
   });
 }
