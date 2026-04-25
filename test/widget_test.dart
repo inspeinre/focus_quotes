@@ -2,9 +2,10 @@ import 'package:flutter/material.dart'; // Добавь этот импорт д
 import 'package:flutter_test/flutter_test.dart';
 import 'package:focus_quotes/main.dart';
 import 'package:focus_quotes/data/quotes_data.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  // Тест 1 (уже есть у тебя)
+  // Тест 1
   testWidgets('Проверка отображения заголовка и первой цитаты', (
     WidgetTester tester,
   ) async {
@@ -14,7 +15,7 @@ void main() {
     expect(find.text('1 / ${quotes.length}'), findsOneWidget);
   });
 
-  // Тест 2 (НОВЫЙ: переключение цитат)
+  // Тест 2 (переключение цитат)
   testWidgets('Проверка переключения на следующую цитату', (
     WidgetTester tester,
   ) async {
@@ -27,5 +28,28 @@ void main() {
     // Теперь должна быть вторая цитата
     expect(find.text(quotes[1].text), findsOneWidget);
     expect(find.text('2 / ${quotes.length}'), findsOneWidget);
+  });
+
+  // Тест 3: Добавление в избранное
+  testWidgets('Проверка добавления цитаты в избранное', (
+    WidgetTester tester,
+  ) async {
+    // Инициализируем мок для SharedPreferences
+    SharedPreferences.setMockInitialValues({});
+
+    await tester.pumpWidget(const FocusQuotesApp());
+    // 1. Ищем кнопку сердечка под цитатой (она должна быть Icons.favorite_border)
+    // Важно: одна иконка favorite уже есть в шапке (переход в список),
+    // поэтому ищем именно контурную.
+    final favButton = find.byIcon(Icons.favorite_border);
+    expect(favButton, findsOneWidget);
+    // 2. Нажимаем на неё
+    await tester.tap(favButton);
+    await tester.pump(); // Перерисовываем экран
+    // 3. Теперь контурной иконки быть не должно
+    expect(find.byIcon(Icons.favorite_border), findsNothing);
+
+    // 4. Должно быть 2 закрашенных иконки Icons.favorite (одна в шапке, одна под цитатой)
+    expect(find.byIcon(Icons.favorite), findsNWidgets(2));
   });
 }
