@@ -52,4 +52,30 @@ void main() {
     // 4. Должно быть 2 закрашенных иконки Icons.favorite (одна в шапке, одна под цитатой)
     expect(find.byIcon(Icons.favorite), findsNWidgets(2));
   });
+
+  // Тест 4: Переход на экран Избранного и проверка наличия там цитаты
+  testWidgets('Проверка отображения цитаты на экране Избранного', (
+    WidgetTester tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(const FocusQuotesApp());
+    // 1. Добавляем первую цитату в избранное
+    final favButton = find.byIcon(Icons.favorite_border);
+    await tester.tap(favButton);
+    await tester.pump();
+    // 2. Нажимаем на иконку избранного в шапке для перехода
+    // Ищем иконку favorite с размером 28 (как в коде HomeScreen)
+    final goToFavorites = find.byWidgetPredicate(
+      (widget) =>
+          widget is Icon && widget.icon == Icons.favorite && widget.size == 28,
+    );
+    await tester.tap(goToFavorites);
+
+    // 3. Ждем завершения анимации перехода (pumpAndSettle)
+    await tester.pumpAndSettle();
+    // 4. Проверяем, что мы на экране "Избранное"
+    expect(find.text('Избранное'), findsOneWidget);
+    // 5. Проверяем, что наша цитата там отображается
+    expect(find.text(quotes[0].text), findsOneWidget);
+  });
 }
